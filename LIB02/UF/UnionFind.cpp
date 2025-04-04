@@ -54,3 +54,60 @@ class UnionFind {
             return num_sets;
         }
     };
+
+
+vector<pair<int, pair<int, int>>> kruskal_mst(vector<pair<int, pair<int, int>>>& edges, int n) {
+    sort(edges.begin(), edges.end());
+    UnionFind uf(n);
+    vector<pair<int, pair<int, int>>> mst;
+    
+    for (auto& edge : edges) {
+        int u = edge.second.first;
+        int v = edge.second.second;
+        
+        if (uf.find(u) != uf.find(v)) {
+            mst.push_back(edge);
+            uf.union_sets(u, v);
+            if (mst.size() == n - 1) break;
+        }
+    }
+    
+    return mst;
+}
+
+vector<vector<pair<int, int>>> prim_mst(const vector<vector<pair<int, int>>>& graph) {
+    int n = graph.size();
+    vector<bool> in_mst(n, false);
+    vector<int> key(n, INT_MAX);
+    vector<int> parent(n, -1);
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    
+    key[0] = 0;
+    pq.push({0, 0});
+    
+    while (!pq.empty()) {
+        int u = pq.top().second;
+        pq.pop();
+        in_mst[u] = true;
+        
+        for (auto& neighbor : graph[u]) {
+            int v = neighbor.first;
+            int weight = neighbor.second;
+            
+            if (!in_mst[v] && weight < key[v]) {
+                key[v] = weight;
+                parent[v] = u;
+                pq.push({key[v], v});
+            }
+        }
+    }
+    
+    vector<vector<pair<int, int>>> mst(n);
+    for (int i = 1; i < n; i++) {
+        if (parent[i] != -1) {
+            mst[parent[i]].push_back({i, key[i]});
+        }
+    }
+    
+    return mst;
+}
